@@ -1,0 +1,117 @@
+generator client {
+  provider = "prisma-client"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum Role {
+  USER
+  CEO
+  MD1
+  MD2
+}
+
+enum QuoteStatus {
+  DRAFT
+  PENDING_MD1
+  PENDING_MD2
+  APPROVED
+  REJECTED
+}
+
+model User {
+  id            String       @id @default(cuid())
+  name          String?
+  email         String       @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          Role         @default(USER)
+  accounts      Account[]
+  sessions      Session[]
+  quotations    Quotation[]
+  approvals     Approval[]
+}
+
+model Account {
+  userId            String
+  user              User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  @@id([provider, providerAccountId])
+}
+
+model Session {
+  sessionToken String   @unique
+  userId       String
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expires      DateTime
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@id([identifier, token])
+}
+
+model Quotation {
+  id            String      @id @default(cuid())
+  quoteNumber   String      @unique
+  userId        String
+  user          User        @relation(fields: [userId], references: [id])
+  customerName  String
+  customerEmail String
+  customerPhone String?
+  companyName   String?
+  validUntil    DateTime?
+  lineItems     Json
+  subtotal      Decimal     @db.Decimal(12, 2)
+  taxPercent    Decimal     @default(0) @db.Decimal(5, 2)
+  taxAmount     Decimal     @default(0) @db.Decimal(12, 2)
+  total         Decimal     @db.Decimal(12, 2)
+  notes         String?
+  status        QuoteStatus @default(DRAFT)
+  createdAt     DateTime    @default(now())
+  updatedAt     DateTime    @updatedAt
+  approvals     Approval[]
+  invoice       Invoice?
+}
+
+model Approval {
+  id          String      @id @default(cuid())
+  quotationId String
+  quotation   Quotation   @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  approverId  String
+  approver    User        @relation(fields: [approverId], references: [id])
+  level       Int
+  status      String      @default("PENDING")
+  comment     String?
+  createdAt   DateTime    @default(now())
+  decidedAt   DateTime?
+
+  @@unique([quotationId, level])
+}
+
+model Invoice {
+  id            String    @id @default(cuid())
+  quotationId   String    @unique
+  quotation     Quotation @relation(fields: [quotationId], references: [id], onDelete: Cascade)
+  invoiceNumber String    @unique
+  pdfUrl        String?
+  emailedAt     DateTime?
+  createdAt     DateTime  @default(now())
+}
