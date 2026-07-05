@@ -139,6 +139,15 @@ export async function fetchInvoiceData(): Promise<{
       { invoiceTotal: 0, totalTax: 0, cgstAmount: 0, sgstAmount: 0, igstAmount: 0, invoiceCount: 0 }
     )
 
+    rows.sort((a, b) => {
+      const dateA = new Date(a.invoiceDate).getTime()
+      const dateB = new Date(b.invoiceDate).getTime()
+      if (isNaN(dateA) && isNaN(dateB)) return 0
+      if (isNaN(dateA)) return 1
+      if (isNaN(dateB)) return -1
+      return dateB - dateA
+    })
+
     return { rows, totals }
   } catch (err: unknown) {
     return {

@@ -1,6 +1,6 @@
 "use client"
 
-import { useState } from "react"
+import { useState, useMemo } from "react"
 import { useForm, useFieldArray } from "react-hook-form"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useRouter } from "next/navigation"
@@ -19,6 +19,12 @@ export function QuotationStepper({ initialData, quotationId }: Props) {
   const [saving, setSaving] = useState(false)
   const isEditing = !!quotationId
 
+  const todayPlus25 = useMemo(() => {
+    const d = new Date()
+    d.setDate(d.getDate() + 25)
+    return d.toISOString().split("T")[0]
+  }, [])
+
   const form = useForm<QuotationFormData>({
     resolver: zodResolver(quotationSchema) as any,
     defaultValues: initialData || {
@@ -26,9 +32,9 @@ export function QuotationStepper({ initialData, quotationId }: Props) {
       customerEmail: "",
       customerPhone: "",
       companyName: "",
-      validUntil: "",
+      validUntil: todayPlus25,
       lineItems: [{ id: crypto.randomUUID(), description: "", quantity: 1, rate: 0, amount: 0 }],
-      taxPercent: 0,
+      taxPercent: 18,
       notes: "",
     },
     mode: "onChange",
@@ -133,14 +139,14 @@ export function QuotationStepper({ initialData, quotationId }: Props) {
   }
 
   const inputClass = "input mt-1"
-  const labelClass = "block text-sm font-medium text-gray-700"
+  const labelClass = "block text-sm font-medium text-foreground"
   const errorClass = "mt-1 text-xs text-red-600"
 
   return (
     <div className="mx-auto max-w-3xl space-y-8">
       {/* Customer Details */}
       <div className="card p-5 sm:p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Customer Details</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-4">Customer Details</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className={labelClass}>Customer Name *</label>
@@ -166,7 +172,7 @@ export function QuotationStepper({ initialData, quotationId }: Props) {
       {/* Line Items */}
       <div className="card p-5 sm:p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Line Items</h2>
+          <h2 className="text-lg font-semibold text-foreground">Line Items</h2>
           <button
             type="button"
             onClick={addItem}
@@ -177,16 +183,16 @@ export function QuotationStepper({ initialData, quotationId }: Props) {
         </div>
 
         {fields.length === 0 && (
-          <p className="text-sm text-gray-500">No items yet. Click &quot;Add Item&quot; to start.</p>
+          <p className="text-sm text-muted">No items yet. Click &quot;Add Item&quot; to start.</p>
         )}
 
         <div className="space-y-3">
           {fields.map((field, index) => (
-            <div key={field.id} className="rounded-lg border border-gray-200 bg-gray-50/50 p-3 sm:p-4">
+            <div key={field.id} className="rounded-lg border border-stroke bg-card/50 p-3 sm:p-4">
               <div className="flex items-start justify-between gap-2">
                 <div className="flex-1 space-y-3">
                   <div>
-                    <label className="block text-xs font-medium text-gray-500">Description</label>
+                    <label className="block text-xs font-medium text-muted">Description</label>
                     <input
                       {...register(`lineItems.${index}.description`)}
                       placeholder="Service or product name"
@@ -195,7 +201,7 @@ export function QuotationStepper({ initialData, quotationId }: Props) {
                   </div>
                   <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
                     <div>
-                      <label className="block text-xs font-medium text-gray-500">Qty</label>
+                      <label className="block text-xs font-medium text-muted">Qty</label>
                       <input
                         type="number" min="1"
                         {...register(`lineItems.${index}.quantity`, { valueAsNumber: true })}
@@ -204,7 +210,7 @@ export function QuotationStepper({ initialData, quotationId }: Props) {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-500">Rate (₹)</label>
+                      <label className="block text-xs font-medium text-muted">Rate (₹)</label>
                       <input
                         type="number" min="0" step="0.01"
                         {...register(`lineItems.${index}.rate`, { valueAsNumber: true })}
@@ -213,11 +219,11 @@ export function QuotationStepper({ initialData, quotationId }: Props) {
                       />
                     </div>
                     <div>
-                      <label className="block text-xs font-medium text-gray-500">Amount</label>
+                      <label className="block text-xs font-medium text-muted">Amount</label>
                       <input
                         type="number" step="0.01" readOnly
                         {...register(`lineItems.${index}.amount`, { valueAsNumber: true })}
-                        className="rounded-lg border border-gray-200 bg-gray-100 px-3 py-2 text-sm text-gray-700 w-full"
+                        className="rounded-lg border border-stroke bg-card px-3 py-2 text-sm text-foreground w-full"
                       />
                     </div>
                   </div>
@@ -225,7 +231,7 @@ export function QuotationStepper({ initialData, quotationId }: Props) {
                 <button
                   type="button"
                   onClick={() => remove(index)}
-                  className="rounded-lg p-1.5 text-gray-400 hover:bg-red-50 hover:text-red-500"
+                  className="rounded-lg p-1.5 text-muted hover:bg-danger-light/20 hover:text-red-500"
                 >
                   <Trash2 className="h-4 w-4" />
                 </button>
@@ -238,7 +244,7 @@ export function QuotationStepper({ initialData, quotationId }: Props) {
 
       {/* Pricing & Terms */}
       <div className="card p-5 sm:p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Pricing & Terms</h2>
+        <h2 className="text-lg font-semibold text-foreground mb-4">Pricing & Terms</h2>
         <div className="grid gap-4 sm:grid-cols-2">
           <div>
             <label className={labelClass}>Tax (%)</label>
@@ -260,26 +266,26 @@ export function QuotationStepper({ initialData, quotationId }: Props) {
       {/* Summary */}
       <div className="card p-5 sm:p-6">
         <div className="flex items-center gap-2 mb-4">
-          <IndianRupee className="h-5 w-5 text-blue-600" />
-          <h2 className="text-lg font-semibold text-gray-900">Summary</h2>
+          <IndianRupee className="h-5 w-5 text-primary" />
+          <h2 className="text-lg font-semibold text-foreground">Summary</h2>
         </div>
         {data.lineItems.length > 0 && (
-          <div className="divide-y divide-gray-100 mb-4">
+          <div className="divide-y divide-stroke-dark mb-4">
             {data.lineItems.map((item, i) => (
               <div key={i} className="flex items-center justify-between py-2">
                 <div>
-                  <p className="text-sm font-medium text-gray-900">{item.description || `Item ${i + 1}`}</p>
-                  <p className="text-xs text-gray-500">{item.quantity || 0} x ₹{(item.rate || 0).toFixed(2)}</p>
+                  <p className="text-sm font-medium text-foreground">{item.description || `Item ${i + 1}`}</p>
+                  <p className="text-xs text-muted">{item.quantity || 0} x ₹{(item.rate || 0).toFixed(2)}</p>
                 </div>
-                <p className="text-sm font-medium text-gray-900">₹{(item.amount || 0).toFixed(2)}</p>
+                <p className="text-sm font-medium text-foreground">₹{(item.amount || 0).toFixed(2)}</p>
               </div>
             ))}
           </div>
         )}
-        <div className="border-t border-gray-200 pt-3 space-y-1 text-sm">
-          <div className="flex justify-between"><span className="text-gray-500">Subtotal</span><span className="font-medium">₹{subtotal.toFixed(2)}</span></div>
-          <div className="flex justify-between"><span className="text-gray-500">Tax ({(data.taxPercent || 0)}%)</span><span className="font-medium">₹{taxAmount.toFixed(2)}</span></div>
-          <div className="flex justify-between border-t border-gray-300 pt-2 text-base"><span className="font-semibold">Total</span><span className="font-bold text-blue-700">₹{total.toFixed(2)}</span></div>
+        <div className="border-t border-stroke pt-3 space-y-1 text-sm">
+          <div className="flex justify-between"><span className="text-muted">Subtotal</span><span className="font-medium">₹{subtotal.toFixed(2)}</span></div>
+          <div className="flex justify-between"><span className="text-muted">Tax ({(data.taxPercent || 0)}%)</span><span className="font-medium">₹{taxAmount.toFixed(2)}</span></div>
+          <div className="flex justify-between border-t border-stroke pt-2 text-base"><span className="font-semibold">Total</span><span className="font-bold text-primary">₹{total.toFixed(2)}</span></div>
         </div>
       </div>
 

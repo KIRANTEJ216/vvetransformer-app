@@ -1,6 +1,7 @@
 import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { fetchInvoiceData, aggregateMonthly } from "@/lib/sheets"
+import { RevenueChart } from "@/components/financial/revenue-chart"
 import {
   IndianRupee,
   TrendingUp,
@@ -20,7 +21,6 @@ export default async function ActualRevenuePage() {
 
   const sheetData = await fetchInvoiceData()
   const monthlyData = aggregateMonthly(sheetData.rows)
-  const maxRevenue = Math.max(...monthlyData.map((m) => m.revenue), 1)
 
   return (
     <div className="space-y-6">
@@ -28,7 +28,7 @@ export default async function ActualRevenuePage() {
       <div className="flex items-start justify-between">
         <div>
           <div className="flex items-center gap-3 mb-1">
-            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-blue-600 to-blue-700 text-white text-sm font-bold shadow-sm">
+            <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-primary to-primary-dark text-white text-sm font-bold shadow-sm">
               A
             </div>
             <div>
@@ -67,7 +67,7 @@ export default async function ActualRevenuePage() {
           title="Total Revenue"
           value={sheetData.totals.invoiceTotal}
           icon={IndianRupee}
-          gradient="from-blue-600 to-blue-700"
+          gradient="from-primary to-primary-dark"
           badge={{ text: "Actual revenue", color: "badge-blue" }}
         />
         <MetricCard
@@ -83,6 +83,7 @@ export default async function ActualRevenuePage() {
           icon={Receipt}
           gradient="from-emerald-600 to-emerald-700"
           badge={{ text: "From accounting", color: "badge-green" }}
+          currency={false}
         />
         <MetricCard
           title="Avg per Invoice"
@@ -100,14 +101,20 @@ export default async function ActualRevenuePage() {
       {/* Monthly revenue chart */}
       <div className="card">
         <div className="card-header">
-          <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-foreground">
               Monthly Revenue Trend
             </h2>
             {monthlyData.length > 0 && (
-              <span className="text-xs text-muted">
-                {monthlyData.length} months
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="hidden sm:inline text-xs text-muted">
+                  {monthlyData.length} months
+                </span>
+                <span className="hidden sm:inline text-xs text-muted">·</span>
+                <span className="text-xs font-medium text-primary">
+                  ₹{monthlyData.reduce((s, m) => s + m.revenue, 0).toLocaleString("en-IN", { minimumFractionDigits: 0 })} total
+                </span>
+              </div>
             )}
           </div>
         </div>
@@ -119,26 +126,8 @@ export default async function ActualRevenuePage() {
               <p className="text-xs">Connect Google Sheets to see trends.</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {monthlyData.map((m) => {
-                const pct = (m.revenue / maxRevenue) * 100
-                return (
-                  <div key={m.month} className="space-y-1">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-medium text-muted">{m.month}</span>
-                      <span className="font-semibold text-foreground">
-                        ₹{m.revenue.toLocaleString("en-IN", { minimumFractionDigits: 0 })}
-                      </span>
-                    </div>
-                    <div className="h-2.5 w-full rounded-full bg-gray-100 overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-blue-600 to-blue-700 transition-all"
-                        style={{ width: `${Math.max(pct, 2)}%` }}
-                      />
-                    </div>
-                  </div>
-                )
-              })}
+            <div className="pt-2 pb-1">
+              <RevenueChart data={monthlyData} color="#5750f1" gradientId="actualRevenueGrad" />
             </div>
           )}
         </div>
@@ -149,7 +138,7 @@ export default async function ActualRevenuePage() {
         <TaxCard
           label="CGST Collected"
           value={sheetData.totals.cgstAmount}
-          gradient="from-blue-500 to-blue-600"
+          gradient="from-primary-light to-primary"
         />
         <TaxCard
           label="SGST Collected"
@@ -185,11 +174,11 @@ export default async function ActualRevenuePage() {
               <p className="text-xs">Connect Google Sheets to populate.</p>
             </div>
           ) : (
-            <div className="divide-y divide-gray-50 max-h-72 overflow-y-auto">
+            <div className="divide-y divide-stroke-dark max-h-72 overflow-y-auto">
               {sheetData.rows.slice(0, 8).map((row, i) => (
                 <div
                   key={i}
-                  className="flex items-center justify-between px-6 py-3 hover:bg-gray-50/50 transition-colors"
+                  className="flex items-center justify-between px-6 py-3 hover:bg-black/[0.04] transition-colors"
                 >
                   <div className="min-w-0 flex-1">
                     <div className="flex items-center gap-2">
@@ -213,7 +202,7 @@ export default async function ActualRevenuePage() {
       </div>
 
       {/* Bottom branding */}
-      <div className="text-center text-xs text-muted py-4 border-t border-gray-100">
+      <div className="text-center text-xs text-muted py-4 border-t border-stroke">
         VVE Transformers Pvt. Ltd. · Actual Revenue · Google Sheets Data
       </div>
     </div>
@@ -226,12 +215,14 @@ function MetricCard({
   icon: Icon,
   gradient,
   badge,
+  currency = true,
 }: {
   title: string
   value: number
   icon: React.ElementType
   gradient: string
   badge: { text: string; color: string }
+  currency?: boolean
 }) {
   return (
     <div className="card overflow-hidden relative">
@@ -248,8 +239,8 @@ function MetricCard({
           </div>
         </div>
         <p className="stat-value text-foreground mb-2">
-          ₹{value.toLocaleString("en-IN", {
-            minimumFractionDigits: value < 10000 ? 2 : 0,
+          {currency ? "₹" : ""}{value.toLocaleString("en-IN", {
+            minimumFractionDigits: currency && value < 10000 ? 2 : 0,
           })}
         </p>
         <span className={cn("badge text-[10px]", badge.color)}>

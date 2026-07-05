@@ -12,28 +12,34 @@ async function main() {
 
   const users = [
     {
-      name: "Alice Johnson",
-      email: "alice@example.com",
-      password,
-      role: "USER" as const,
-    },
-    {
       name: "Kiran Tej (CEO)",
-      email: "ceo@example.com",
+      email: "ceo@vve.com",
       password,
       role: "CEO" as const,
     },
     {
-      name: "Bob Smith (MD1)",
-      email: "md1@example.com",
+      name: "Rajesh Sharma (MD1)",
+      email: "md1@vve.com",
       password,
       role: "MD1" as const,
     },
     {
-      name: "Carol Williams (MD2)",
-      email: "md2@example.com",
+      name: "Vikram Patel (MD2)",
+      email: "md2@vve.com",
       password,
       role: "MD2" as const,
+    },
+    {
+      name: "Priya Singh",
+      email: "user1@vve.com",
+      password,
+      role: "USER" as const,
+    },
+    {
+      name: "Amit Kumar",
+      email: "user2@vve.com",
+      password,
+      role: "USER" as const,
     },
   ]
 

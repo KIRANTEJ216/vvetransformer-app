@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth"
 import { prisma } from "@/lib/prisma"
 import { redirect } from "next/navigation"
 import Link from "next/link"
+import { RevenueChart } from "@/components/financial/revenue-chart"
 import {
   IndianRupee,
   TrendingUp,
@@ -106,8 +107,6 @@ export default async function ForecastPage() {
       revenue: val.revenue,
       count: val.count,
     }))
-  const maxMonthlyRevenue = Math.max(...monthlyData.map((m) => m.revenue), 1)
-
   // Top marketing users
   const topUsers = userQuoteStats
     .map((u) => ({
@@ -174,7 +173,7 @@ export default async function ForecastPage() {
           title="Pipeline Value"
           value={pipelineValue}
           icon={Target}
-          gradient="from-blue-600 to-blue-700"
+          gradient="from-primary to-primary-dark"
           badge={{ text: `${draftQuotes.length} draft quotes`, color: "badge-blue" }}
         />
         <MetricCard
@@ -195,23 +194,29 @@ export default async function ForecastPage() {
 
       {/* Secondary metrics */}
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <SimpleMetric label="Invoices Generated" value={invoiceCount} icon={Receipt} color="text-blue-600 bg-blue-50" />
-        <SimpleMetric label="Invoiced Amount" value={invoicedAmount} icon={IndianRupee} color="text-emerald-600 bg-emerald-50" />
-        <SimpleMetric label="Conversion Rate" value={`${conversionRate}%`} icon={ArrowUpRight} color="text-violet-600 bg-violet-50" />
-        <SimpleMetric label="Avg Quote Value" value={avgQuoteValue} icon={BarChart3} color="text-amber-600 bg-amber-50" />
+        <SimpleMetric label="Invoices Generated" value={invoiceCount} icon={Receipt} color="text-primary bg-primary/20" />
+        <SimpleMetric label="Invoiced Amount" value={invoicedAmount} icon={IndianRupee} color="text-emerald-400 bg-emerald-500/20" />
+        <SimpleMetric label="Conversion Rate" value={`${conversionRate}%`} icon={ArrowUpRight} color="text-violet-400 bg-violet-500/20" />
+        <SimpleMetric label="Avg Quote Value" value={avgQuoteValue} icon={BarChart3} color="text-amber-400 bg-amber-500/20" />
       </div>
 
       {/* Monthly forecast chart */}
       <div className="card">
         <div className="card-header">
-          <div className="flex items-center justify-between mb-1">
+          <div className="flex items-center justify-between">
             <h2 className="text-sm font-semibold text-foreground">
               Monthly Forecast Trend
             </h2>
             {monthlyData.length > 0 && (
-              <span className="text-xs text-muted">
-                {monthlyData.length} months · Approved quotations
-              </span>
+              <div className="flex items-center gap-2">
+                <span className="hidden sm:inline text-xs text-muted">
+                  {monthlyData.length} months
+                </span>
+                <span className="hidden sm:inline text-xs text-muted">·</span>
+                <span className="text-xs font-medium text-emerald-400">
+                  {monthlyData.reduce((s, m) => s + m.count, 0)} approved quotes
+                </span>
+              </div>
             )}
           </div>
         </div>
@@ -223,29 +228,8 @@ export default async function ForecastPage() {
               <p className="text-xs">Forecast data appears once quotes are approved.</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {monthlyData.map((m) => {
-                const pct = (m.revenue / maxMonthlyRevenue) * 100
-                return (
-                  <div key={m.month} className="space-y-1">
-                    <div className="flex items-center justify-between text-xs">
-                      <span className="font-medium text-muted">{m.month}</span>
-                      <div className="flex items-center gap-3">
-                        <span className="text-muted">{m.count} quotes</span>
-                        <span className="font-semibold text-foreground">
-                          ₹{m.revenue.toLocaleString("en-IN", { minimumFractionDigits: 0 })}
-                        </span>
-                      </div>
-                    </div>
-                    <div className="h-2.5 w-full rounded-full bg-gray-100 overflow-hidden">
-                      <div
-                        className="h-full rounded-full bg-gradient-to-r from-emerald-500 to-emerald-600 transition-all"
-                        style={{ width: `${Math.max(pct, 2)}%` }}
-                      />
-                    </div>
-                  </div>
-                )
-              })}
+            <div className="pt-2 pb-1">
+              <RevenueChart data={monthlyData} color="#22ad5c" gradientId="forecastGrad" />
             </div>
           )}
         </div>
@@ -264,7 +248,7 @@ export default async function ForecastPage() {
             {quarterlyData.length === 0 ? (
               <p className="text-sm text-muted py-8 text-center">No data yet.</p>
             ) : (
-              <div className="divide-y divide-gray-50">
+              <div className="divide-y divide-stroke-dark">
                 {quarterlyData.map((q) => (
                   <div key={q[0]} className="flex items-center justify-between py-3 first:pt-0 last:pb-0">
                     <div>
@@ -298,14 +282,14 @@ export default async function ForecastPage() {
                 <p className="text-sm">No marketing users yet.</p>
               </div>
             ) : (
-              <div className="divide-y divide-gray-50">
+              <div className="divide-y divide-stroke-dark">
                 {topUsers.map((u, i) => (
                   <div
                     key={i}
-                    className="flex items-center justify-between px-6 py-3 hover:bg-gray-50/50 transition-colors"
+                    className="flex items-center justify-between px-6 py-3 hover:bg-black/[0.04] transition-colors"
                   >
                     <div className="flex items-center gap-3 min-w-0">
-                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-gray-100 text-xs font-semibold text-muted">
+                      <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-card text-xs font-semibold text-muted">
                         {i + 1}
                       </span>
                       <div className="min-w-0">
@@ -348,7 +332,7 @@ export default async function ForecastPage() {
       </div>
 
       {/* Bottom branding */}
-      <div className="text-center text-xs text-muted py-4 border-t border-gray-100">
+      <div className="text-center text-xs text-muted py-4 border-t border-stroke">
         VVE Transformers Pvt. Ltd. · Forecasted Revenue · Internal System Data
       </div>
     </div>
@@ -407,7 +391,7 @@ function SimpleMetric({
   color: string
 }) {
   return (
-    <div className="rounded-xl border border-gray-100 bg-white p-4 flex items-center gap-3">
+    <div className="rounded-xl border border-stroke bg-card p-4 flex items-center gap-3">
       <div className={cn("flex h-9 w-9 items-center justify-center rounded-lg", color)}>
         <Icon className="h-4 w-4" />
       </div>

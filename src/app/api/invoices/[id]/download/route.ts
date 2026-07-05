@@ -52,6 +52,7 @@ export async function GET(
     notes: invoice.quotation.notes,
     createdAt: invoice.createdAt.toISOString(),
     validUntil: invoice.quotation.validUntil?.toISOString(),
+    status: "Pending",
   })
 
   return new NextResponse(new Uint8Array(pdfBuffer), {

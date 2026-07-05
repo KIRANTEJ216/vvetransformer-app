@@ -23,6 +23,9 @@ interface InvoiceData {
   notes?: string | null
   createdAt: string
   validUntil?: string | null
+  status?: string
+  customerGst?: string | null
+  customerAddress?: string | null
 }
 
 export async function generateInvoicePDF(data: InvoiceData): Promise<Buffer> {

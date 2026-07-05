@@ -85,7 +85,7 @@ export function InvoiceList({ invoices }: Props) {
 
       {filtered.length === 0 ? (
         <div className="card p-12 text-center">
-          <p className="text-gray-500">No invoices match your search.</p>
+          <p className="text-muted">No invoices match your search.</p>
         </div>
       ) : (
         <div className="space-y-3">
@@ -94,22 +94,22 @@ export function InvoiceList({ invoices }: Props) {
               <div className="flex items-center justify-between">
                 <div className="flex-1 min-w-0">
                   <div className="flex items-center gap-2">
-                    <p className="text-sm font-semibold text-gray-900">
+                    <p className="text-sm font-semibold text-foreground">
                       {inv.invoiceNumber}
                     </p>
                     <span className="badge badge-green">
                       {inv.quotation.status.replace(/_/g, " ")}
                     </span>
                   </div>
-                  <p className="mt-0.5 text-sm text-gray-500 truncate">
+                  <p className="mt-0.5 text-sm text-muted truncate">
                     {inv.quotation.customerName} · {inv.quotation.quoteNumber}
                   </p>
-                  <p className="text-xs text-gray-400">
+                  <p className="text-xs text-muted">
                     Generated {new Date(inv.createdAt).toLocaleDateString()}
                   </p>
                 </div>
                 <div className="flex items-center gap-2 ml-4">
-                  <p className="text-sm font-semibold text-gray-900">
+                  <p className="text-sm font-semibold text-foreground">
                     ₹{inv.quotation.total.toLocaleString("en-IN", { minimumFractionDigits: 2 })}
                   </p>
                   <button

@@ -61,15 +61,31 @@ export function DeliveryMapClient({
     const officeMarker = L.marker([office.lat, office.lng], { icon: officeIcon() })
       .addTo(map)
       .bindPopup(`
-        <div style="font-family:sans-serif;min-width:160px;">
-          <p style="font-weight:700;margin:0 0 4px;font-size:14px;color:#1a365d;">🏭 Central Office</p>
-          <p style="margin:0;font-size:12px;color:#666;">VVE Transformers</p>
+        <div style="font-family:sans-serif;min-width:180px;">
+          <p style="font-weight:700;margin:0 0 4px;font-size:14px;color:#1a365d;">🏭 VVE Transformers</p>
+          <p style="margin:0;font-size:12px;color:#666;">Plot No.62/2, C.I.E, Gandhinagar, Balanagar</p>
+          <p style="margin:0;font-size:12px;color:#666;">Hyderabad, Telangana</p>
         </div>
       `)
 
     const markers: L.Marker[] = []
+    const polylines: L.Polyline[] = []
 
     locations.forEach((loc) => {
+      const polyline = L.polyline(
+        [
+          [office.lat, office.lng],
+          [loc.lat, loc.lng],
+        ],
+        {
+          color: "#0A4D9B",
+          weight: 1.5,
+          opacity: 0.25,
+          dashArray: "6, 6",
+        }
+      ).addTo(map)
+      polylines.push(polyline)
+
       const marker = L.marker([loc.lat, loc.lng], { icon: deliveryIcon(loc.deliveries) })
         .addTo(map)
         .bindPopup(`
@@ -111,15 +127,19 @@ export function DeliveryMapClient({
       <div className="card overflow-hidden">
         <div ref={mapRef} className="h-[500px] w-full" />
 
-        <div className="flex items-center justify-between px-5 py-3 bg-gray-50 border-t border-gray-100">
+        <div className="flex items-center justify-between px-5 py-3 bg-card border-t border-stroke">
           <div className="flex items-center gap-4 text-xs text-muted">
             <span className="flex items-center gap-1.5">
               <span className="inline-block w-3 h-3 rounded-full bg-[#1a365d]" />
-              Central Office
+              Office (Hyderabad)
             </span>
             <span className="flex items-center gap-1.5">
               <span className="inline-block w-3 h-3 rounded-full bg-emerald-500" />
               Delivery Location
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="inline-block w-5" style={{ borderTop: "2px dashed #0A4D9B", opacity: 0.5 }} />
+              Route
             </span>
             <span className="text-muted">
               {locations.length} cities · {locations.reduce((s, l) => s + l.deliveries, 0)} deliveries
@@ -170,7 +190,7 @@ export function DeliveryMapClient({
               </div>
             </div>
             {selected.vehicles.length > 0 && (
-              <div className="mt-4 pt-4 border-t border-gray-100">
+              <div className="mt-4 pt-4 border-t border-stroke">
                 <p className="text-xs text-muted mb-2 font-medium">Vehicles Used</p>
                 <div className="flex flex-wrap gap-2">
                   {selected.vehicles.map((v) => (

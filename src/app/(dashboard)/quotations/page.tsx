@@ -1,3 +1,4 @@
+import { redirect } from "next/navigation"
 import Link from "next/link"
 import { Plus } from "lucide-react"
 import { auth } from "@/lib/auth"
@@ -7,6 +8,10 @@ import { QuotationList } from "./quotation-list"
 export default async function QuotationsPage() {
   const session = await auth()
   if (!session?.user?.id) return null
+
+  if (session.user.role && session.user.role !== "USER") {
+    redirect("/approvals")
+  }
 
   const quotations = await prisma.quotation.findMany({
     where: { userId: session.user.id },
@@ -38,8 +43,8 @@ export default async function QuotationsPage() {
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Quotations</h1>
-          <p className="text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-foreground">Quotations</h1>
+          <p className="text-sm text-muted">
             Manage your quotations
           </p>
         </div>
@@ -51,7 +56,7 @@ export default async function QuotationsPage() {
 
       {quotations.length === 0 ? (
         <div className="card p-12 text-center">
-          <p className="text-gray-500">No quotations yet. Create your first one.</p>
+          <p className="text-muted">No quotations yet. Create your first one.</p>
           <Link href="/quotations/new" className="btn-primary mt-4"
           >
             <Plus className="h-4 w-4" />

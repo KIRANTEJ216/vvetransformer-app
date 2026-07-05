@@ -12,7 +12,7 @@ export async function POST(
   }
 
   const role = session.user.role
-  if (role !== "MD1" && role !== "MD2") {
+  if (role !== "MD1" && role !== "MD2" && role !== "CEO") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
 
@@ -39,11 +39,6 @@ export async function POST(
 
   if (approval.status !== "PENDING") {
     return NextResponse.json({ error: "Already decided" }, { status: 400 })
-  }
-
-  const expectedLevel = role === "MD1" ? 1 : 2
-  if (approval.level !== expectedLevel) {
-    return NextResponse.json({ error: "Wrong approval level" }, { status: 400 })
   }
 
   const quotationId = approval.quotationId

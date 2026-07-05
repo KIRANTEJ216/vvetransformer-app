@@ -2,7 +2,7 @@ import { auth } from "@/lib/auth"
 import { redirect } from "next/navigation"
 import { fetchInvoiceData } from "@/lib/sheets"
 import { extractCity, getOfficeLocation, type CityCoord } from "@/lib/indian-cities"
-import { DeliveryMapClient } from "./delivery-map-client"
+import { MapWrapper } from "./map-wrapper"
 
 export interface DeliveryLocation {
   city: string
@@ -100,7 +100,7 @@ export default async function DeliveryMapPage() {
       )}
 
       {locations.length > 0 ? (
-        <DeliveryMapClient office={office} locations={locations} />
+        <MapWrapper office={office} locations={locations} />
       ) : !sheetData.error ? (
         <div className="card">
           <div className="card-body text-center py-12 text-muted">
@@ -120,7 +120,7 @@ export default async function DeliveryMapPage() {
           <div className="card-body p-0">
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
-                <thead className="bg-gray-50 text-xs font-medium text-muted uppercase">
+                <thead className="bg-card text-xs font-medium text-muted uppercase">
                   <tr>
                     <th className="text-left px-5 py-3">City</th>
                     <th className="text-left px-5 py-3">State</th>
@@ -130,11 +130,11 @@ export default async function DeliveryMapPage() {
                     <th className="text-left px-5 py-3">Vehicles</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-50">
+                <tbody className="divide-y divide-stroke-dark">
                   {locations
                     .sort((a, b) => b.deliveries - a.deliveries)
                     .map((loc) => (
-                      <tr key={`${loc.lat},${loc.lng}`} className="hover:bg-gray-50/50 transition-colors">
+                      <tr key={`${loc.lat},${loc.lng}`} className="hover:bg-black/[0.04] transition-colors">
                         <td className="px-5 py-3 font-medium text-foreground capitalize">
                           {loc.city}
                         </td>
@@ -156,7 +156,7 @@ export default async function DeliveryMapPage() {
         </div>
       )}
 
-      <div className="text-center text-xs text-muted py-4 border-t border-gray-100">
+      <div className="text-center text-xs text-muted py-4 border-t border-stroke">
         VVE Transformers Pvt. Ltd. · Delivery Map · Data from Google Sheets
       </div>
     </div>

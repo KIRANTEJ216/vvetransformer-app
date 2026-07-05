@@ -249,5 +249,5 @@ export function extractCity(address: string): CityCoord | null {
 }
 
 export function getOfficeLocation(): CityCoord {
-  return { city: "office", state: "maharashtra", lat: 19.0760, lng: 72.8777 }
+  return { city: "hyderabad", state: "telangana", lat: 17.3850, lng: 78.4867 }
 }

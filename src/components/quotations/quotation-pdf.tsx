@@ -10,7 +10,7 @@ const styles = StyleSheet.create({
   header: {
     marginBottom: 30,
     borderBottomWidth: 2,
-    borderBottomColor: "#1e3a5f",
+    borderBottomColor: "#5750f1",
     paddingBottom: 20,
     flexDirection: "row",
     justifyContent: "space-between",
@@ -19,7 +19,7 @@ const styles = StyleSheet.create({
   brandName: {
     fontSize: 20,
     fontWeight: "bold",
-    color: "#1e3a5f",
+    color: "#5750f1",
   },
   brandSub: {
     fontSize: 9,
@@ -122,14 +122,14 @@ const styles = StyleSheet.create({
     textAlign: "right",
     fontSize: 12,
     fontWeight: "bold",
-    color: "#1e3a5f",
+    color: "#5750f1",
   },
   grandTotalValue: {
     width: 100,
     textAlign: "right",
     fontSize: 12,
     fontWeight: "bold",
-    color: "#1e3a5f",
+    color: "#5750f1",
   },
   statusBadge: {
     marginTop: 20,
@@ -187,8 +187,8 @@ interface QuotationPDFData {
 
 export function QuotationPDF({ data }: { data: QuotationPDFData }) {
   const statusColor =
-    data.status === "APPROVED" ? "#10b981" :
-    data.status === "REJECTED" ? "#ef4444" :
+    data.status === "APPROVED" ? "#22ad5c" :
+    data.status === "REJECTED" ? "#f23030" :
     data.status === "DRAFT" ? "#6b7280" : "#f59e0b"
 
   return (

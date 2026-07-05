@@ -7,26 +7,25 @@ export default async function ApprovalsPage() {
   if (!session?.user?.id) {
     return (
         <div className="card p-12 text-center">
-          <p className="text-gray-500">Please sign in to view approvals.</p>
+          <p className="text-muted">Please sign in to view approvals.</p>
       </div>
     )
   }
 
   const role = session.user.role
-  const level = role === "MD1" ? 1 : role === "MD2" ? 2 : null
 
-  if (!level) {
+  if (role !== "MD1" && role !== "MD2" && role !== "CEO") {
     return (
       <div className="space-y-6">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Approvals</h1>
-          <p className="text-sm text-gray-500">
+          <h1 className="text-2xl font-bold text-foreground">Approvals</h1>
+          <p className="text-sm text-muted">
             Review and approve quotations
           </p>
         </div>
         <div className="card p-12 text-center">
-          <p className="text-gray-500">
-            Only MD1 and MD2 users can access this page.
+          <p className="text-muted">
+            Only CEO, MD1, and MD2 users can access this page.
           </p>
         </div>
       </div>
@@ -36,7 +35,6 @@ export default async function ApprovalsPage() {
   const pendingApprovals = await prisma.approval.findMany({
     where: {
       approverId: session.user.id,
-      level,
       status: "PENDING",
     },
     orderBy: { createdAt: "desc" },
@@ -52,7 +50,6 @@ export default async function ApprovalsPage() {
   const decidedApprovals = await prisma.approval.findMany({
     where: {
       approverId: session.user.id,
-      level,
       status: { in: ["APPROVED", "REJECTED"] },
     },
     orderBy: { decidedAt: "desc" },

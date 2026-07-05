@@ -9,18 +9,15 @@ export async function GET(req: Request) {
   }
 
   const role = session.user.role
-  if (role !== "MD1" && role !== "MD2") {
+  if (role !== "MD1" && role !== "MD2" && role !== "CEO") {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 })
   }
 
   const { searchParams } = new URL(req.url)
   const filter = searchParams.get("filter") || "pending"
 
-  const level = role === "MD1" ? 1 : 2
-
   const where: any = {
     approverId: session.user.id,
-    level,
   }
 
   if (filter === "pending") {

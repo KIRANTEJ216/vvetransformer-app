@@ -13,8 +13,8 @@ export default function DashboardError({
     <div className="flex items-center justify-center min-h-[60vh]">
       <div className="text-center space-y-4 max-w-md">
         <div className="text-6xl font-bold text-red-400">!</div>
-        <h1 className="text-2xl font-bold text-gray-800">Something went wrong</h1>
-        <p className="text-gray-500 text-sm">
+        <h1 className="text-2xl font-bold text-foreground">Something went wrong</h1>
+        <p className="text-muted text-sm">
           {error.message || "An unexpected error occurred. Please try again."}
         </p>
         <div className="flex items-center justify-center gap-3">

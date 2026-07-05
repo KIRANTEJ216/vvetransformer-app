@@ -14,13 +14,17 @@ export default async function EditQuotationPage({
   const session = await auth()
   if (!session?.user?.id) return null
 
+  if (session.user.role && session.user.role !== "USER") {
+    redirect("/approvals")
+  }
+
   const { id } = await params
 
   const quotation = await prisma.quotation.findUnique({ where: { id } })
   if (!quotation) notFound()
 
   if (quotation.userId !== session.user.id) {
-    return <p className="text-center text-gray-500">Access denied</p>
+    return <p className="text-center text-muted">Access denied</p>
   }
 
   if (quotation.status !== "DRAFT") {
@@ -50,11 +54,11 @@ export default async function EditQuotationPage({
     <div className="space-y-6">
       <Link
         href={`/quotations/${id}`}
-        className="inline-flex items-center gap-1 text-sm text-gray-500 hover:text-gray-700"
+        className="inline-flex items-center gap-1 text-sm text-muted hover:text-foreground"
       >
         <ArrowLeft className="h-4 w-4" /> Back to Quotation
       </Link>
-      <h1 className="text-2xl font-bold text-gray-900">Edit {quotation.quoteNumber}</h1>
+      <h1 className="text-2xl font-bold text-foreground">Edit {quotation.quoteNumber}</h1>
       <QuotationStepper initialData={initialData} quotationId={id} />
     </div>
   )
